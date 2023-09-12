@@ -377,7 +377,7 @@ class MAML:
                     correct = (torch.eq(torch.tensor(pred_query), torch.tensor(labels)).sum().item()) / len(labels)
                     corrects[k + 1] = corrects[k + 1] + correct
             print(corrects)
-                    # print(pred_query)
+            # print(pred_query)
             # print(corrects)
 
         if save_path:

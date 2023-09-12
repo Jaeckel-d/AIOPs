@@ -1,3 +1,5 @@
+# MAML and FOMAML training and finetune
+
 from maml_ import MAML
 from model import AttentionPool, AttentionLSTM, GateAttention
 from aiop_dataset import MetaAIOPS
@@ -78,21 +80,22 @@ root_path = "/home/wyd/AIOP/MAML/meta-finetune"
 models = [fomaml]
 names = ["FOMAML"]
 
-for finetune in finetune_class:
-    for x, shot in enumerate([1, 5, 10]):
-        for model, name in zip(models, names):
-            repeat = 90
-            for i in range(repeat):
-                data_test = MetaAIOPS(root_path="./aliyunwei/tmp_data", mode="finetune", n_shot=shot,
-                                      finetune_class=finetune)
-                data_test = DataLoader(data_test, batch_size=1, shuffle=True)
+if __name__ == "__main__":
+    for finetune in finetune_class:
+        for x, shot in enumerate([1, 5, 10]):
+            for model, name in zip(models, names):
+                repeat = 90
+                for i in range(repeat):
+                    data_test = MetaAIOPS(root_path="./aliyunwei/tmp_data", mode="finetune", n_shot=shot,
+                                          finetune_class=finetune)
+                    data_test = DataLoader(data_test, batch_size=1, shuffle=True)
 
-                dir_path = os.path.join(root_path, f"{name}_{shot}_shot_finetuneclass_{finetune[0]}")
-                if not os.path.exists(dir_path):
-                    os.mkdir(dir_path)
-                save_path = os.path.join(dir_path, f"{name}_{shot}_shot_{finetune}_finetune_class_{i + 10}.pt")
-                model.finetune_(data_test, 30,
-                                load_path=load_paths[x],
-                                save_path=save_path
-                                )
-        # model.test(data_test, num_inner_steps_test)
+                    dir_path = os.path.join(root_path, f"{name}_{shot}_shot_finetuneclass_{finetune[0]}")
+                    if not os.path.exists(dir_path):
+                        os.mkdir(dir_path)
+                    save_path = os.path.join(dir_path, f"{name}_{shot}_shot_{finetune}_finetune_class_{i + 10}.pt")
+                    model.finetune_(data_test, 30,
+                                    load_path=load_paths[x],
+                                    save_path=save_path
+                                    )
+            # model.test(data_test, num_inner_steps_test)
