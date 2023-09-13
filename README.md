@@ -1,2 +1,2 @@
 # AIOPs
-A repo for same basic research and  experiments about AIOPs
+A repo for some basic research and  experiments about AIOPs
