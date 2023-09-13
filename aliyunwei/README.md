@@ -1,6 +1,7 @@
 # aliyunwei
 
-本部分代码基于https://github.com/yinguoqing123/aliyunwei,为便于了解基础流程,可先参考原repo以及第三届阿里云磐久智维算法大赛相关工作
+本部分代码基于https://github.com/yinguoqing123/aliyunwei
+为便于了解基础流程,可先参考原repo以及第三届阿里云磐久智维算法大赛相关工作
 
 第三届阿里云磐久智维算法大赛
 复赛12
