@@ -140,7 +140,7 @@ class GateAttentionUnit(nn.Module):
 
 
 class MyModel_V2(nn.Module):
-    def __init__(self, att_cate='pool') -> None:
+    def __init__(self, att_cate='pool', return_feature=None) -> None:
         super(MyModel_V2, self).__init__()
         self.emb_msg_f1 = nn.Embedding(len(lookup1), 12, padding_idx=0)
         self.emb_msg_f2 = nn.Embedding(len(lookup1), 6, padding_idx=0)  # 152个
@@ -157,6 +157,8 @@ class MyModel_V2(nn.Module):
 
         self.classify = nn.Linear(26 + 8 + 4 * 3, 10)
         self.dense2 = nn.Linear(10, 4)
+
+        self.return_feature = return_feature
         # self.classify.bias.data = torch.tensor([-2.38883658, -1.57741002, -0.57731536, -1.96360971])
 
     def forward(self, feat):
@@ -177,6 +179,12 @@ class MyModel_V2(nn.Module):
 
         # crashdump = self.emb_crashdump(crashdump) # b, 2, dim
         # crashdump = crashdump.view(b, -1)
+
+        if self.return_feature is not None:
+            return self.classify(torch.concat([att_emb, server_model, venus], dim=-1)), torch.concat(
+                [att_emb, server_model, venus], dim=-1)
+        else:
+            pass
 
         score = self.classify(torch.concat([att_emb, server_model, venus], dim=-1))
         score = self.dense2(torch.relu(score))
