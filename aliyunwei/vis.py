@@ -9,6 +9,7 @@ import torch
 from sklearn.cluster import KMeans
 import pandas as pd
 from spectralcluster import AutoTune, AutoTuneProxy
+from sklearn.metrics import silhouette_score
 
 
 def load_test_set():
@@ -38,8 +39,10 @@ def load_test_set():
     return labels, stack_tensor
 
 
-def load_csv_features(file_name, balance=True):
+def load_csv_features(file_name, balance=True, unknown=False):
     df = pd.read_csv(file_name)
+    if unknown:
+        df = df[df["label"] == "[3]"]
 
     if balance is not None:
         # rng = np.random.default_rng(seed=42)
@@ -89,7 +92,7 @@ def feature_cluster_test(base_path='./src', feature_type='gate', save_path="./sr
     x_out_center = pd.DataFrame(k_means.cluster_centers_)  # 聚类中心
     x_out_with_center = x_out.append(x_out_center)
 
-    tsne = TSNE()
+    tsne = TSNE(n_components=2, random_state=33, perplexity=50)
     tsne.fit_transform(x_out_with_center)
     x_kmeans_tsne = pd.DataFrame(tsne.embedding_, index=x_out_with_center.index)
 
@@ -142,11 +145,41 @@ def feature_cluster_test(base_path='./src', feature_type='gate', save_path="./sr
     plt.show()
 
 
+def explore_n(base_path='./src', feature_type='gate', save_path="./src", max_n=10):
+    labels, feature_less, feature_more = load_csv_features(os.path.join(base_path, f'{feature_type}_feature.csv'),
+                                                           unknown=True)
+    scores = []
+    for i in range(2, max_n + 1):
+        k_means = KMeans(n_clusters=i, init="k-means++", n_init=10, max_iter=300, random_state=42)
+        k_means.fit(feature_more)
+        scores.append(silhouette_score(feature_more, k_means.labels_, metric='euclidean'))
+
+    plt.plot([i for i in range(2, max_n + 1)], scores, 'r*-')
+    plt.xlabel('k')
+    plt.ylabel(u'silhouette_score')
+    plt.title(u'feature_more-silhouette_score')
+    plt.savefig(os.path.join(save_path, 'feature_more.png'))
+
+    scores = []
+    for i in range(2, max_n + 1):
+        k_means = KMeans(n_clusters=i, init="k-means++", n_init=10, max_iter=300, random_state=42)
+        k_means.fit(feature_less)
+        scores.append(silhouette_score(feature_less, k_means.labels_, metric='euclidean'))
+
+    plt.plot([i for i in range(2, max_n + 1)], scores, 'r*-')
+    plt.xlabel('k')
+    plt.ylabel(u'silhouette_score')
+    plt.title(u'feature-silhouette_score')
+    plt.savefig(os.path.join(save_path, 'feature.png'))
+
+
 if __name__ == '__main__':
+    explore_n()
+
     # tensors = load_test_set()
-    feature_cluster_test()
-    feature_cluster_test(feature_type="pool")
-    feature_cluster_test(feature_type="lstm")
+    # feature_cluster_test()
+    # feature_cluster_test(feature_type="pool")
+    # feature_cluster_test(feature_type="lstm")
     # autotune = AutoTune(
     #     p_percentile_min=0.60,
     #     p_percentile_max=0.95,
